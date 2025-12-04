@@ -12,8 +12,16 @@
     <script src="dist/leaflet.js"></script>
     <div class="slidecontainer">
         <input type="range" min="1655352000" max="1685592000" value="1655352000" class="slider" id="myRange">
-        <button id="resetButton">Reset</button>
-        <p id="output"></p>
+        <div id="ui">
+            <select id="selectionBox">
+                <option value="case">Cases</option>
+                <option value="death">Deaths</option>
+                <option value="rate">Weekly Rate (not functional)</option>
+            </select> <br>
+            <button id="resetButton">Update</button>
+
+            <p id="output"></p>
+        </div>
     </div>
     <script src="main.js"></script>
 </body>

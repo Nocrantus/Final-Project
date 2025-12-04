@@ -27,3 +27,8 @@ html, body {
 .slider:hover {
     opacity: 1;
 }
+
+#ui{
+    text-align: center;
+    margin-left: -20px;
+}
