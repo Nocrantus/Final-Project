@@ -32,3 +32,8 @@ html, body {
     text-align: center;
     margin-left: -20px;
 }
+
+#chart{
+    background-color: white;
+    z-index: 1;
+}
