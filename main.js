@@ -1,5 +1,3 @@
-let vals = [];
-let dates = [];
 let sliderVal = 1655352000; //initialize sliderVal
 let output = document.getElementById("output");
 let button = document.getElementById("myButton");
@@ -8,7 +6,7 @@ let selector = document.getElementById('selectionBox');
 let marginLeft = 50;
 let marginRight = 0;
 let marginTop = 0;
-let marginBottom = 30;
+let marginBottom = 20;
 const width = 1000;
 const height = 500;
 
@@ -45,7 +43,10 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
         let min = 0;
         let mid = 0;
         let continuousColor = 0;
+        let vals = [];
+        let dates = [];
 
+        //vals and dates are ALL values and dates in the dataset.
         function calculateVals(){
             //Separates the values and dates from the main array
             vals.length = 0;
@@ -62,6 +63,7 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
         let colorScale = d3.interpolateHsl(d3.hsl(120,1,0.5),d3.hsl(0,1.0,0.5)); //1 = green, 0 = red
 
         //Finds the closest value in 'array' to 'target'
+        //https://www.geeksforgeeks.org/dsa/find-closest-number-array/
         function findClosest(array, target) {
             let res = array[0];
             for (let i = 1; i < array.length; i++) {
@@ -89,7 +91,7 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
             });
         }
 
-        let map = L.map('map').setView([41.38016733657364, -72.10705729845692], 8); //new leaflet map
+        let map = L.map('map').setView([41.38016733657364, -72.70705729845692], 9); //new leaflet map
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -144,7 +146,6 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
 
                 }
             }
-            console.log(formattedDates);
             let minDate = formattedDates[0];
             let maxDate = formattedDates[formattedDates.length - 1];
             let minVal = d3.min(valPoints);
@@ -188,7 +189,7 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
                 .attr("transform", `translate(0,${height - marginBottom})`)
                 .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0));
 
-            // Add the y-axis, remove the domain line, add grid lines and a label.
+            // Add the y-axis, remove the domain line, add grid lines.
             svg.append("g")
                 .attr("transform", `translate(${marginLeft},0)`)
                 .call(d3.axisLeft(y).ticks(height / 40))
@@ -197,6 +198,6 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
                     .attr("x2", width - marginLeft - marginRight)
                     .attr("stroke-opacity", 0.1));
         }
-        generateGraph("Hartford");
+        generateGraph(feature.properties["Hartford"]);
     });
 });

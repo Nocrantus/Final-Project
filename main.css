@@ -1,5 +1,6 @@
 body {
     background: bisque;
+    width: 100%;
 }
 html, body {
     margin: 0;
@@ -36,4 +37,16 @@ html, body {
 #chart{
     background-color: white;
     z-index: 1;
+}
+
+#map {
+    height: 100vh; /* Example: set height to 100% of viewport height */
+    width: 100%;
+    /* Or a fixed height: */
+    /* height: 500px; */
+}
+.leaflet-popup-content {
+    width: 600px !important; /* Sets a fixed width */
+    max-width: 600px; /* Sets a maximum width */
+    min-width: 150px; /* Sets a minimum width */
 }
