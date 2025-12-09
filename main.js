@@ -25,6 +25,14 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
     }).then((data,err2)=>{
         console.log(data);
 
+        let max = 0;
+        let min = 0;
+        let mid = 0;
+        let continuousColor = 0;
+        let vals = [];
+        let dates = [];
+        let colorScale = d3.interpolateHsl(d3.hsl(120,1,0.5),d3.hsl(0,1.0,0.5)); //1 = green, 0 = red
+
         //Slider Code
         let slider = document.getElementById("myRange");
         // Update the current slider value (each time you drag the slider handle)
@@ -39,12 +47,6 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
 
             output.innerHTML = month + '/' + day + '/' + year;
         }
-        let max = 0;
-        let min = 0;
-        let mid = 0;
-        let continuousColor = 0;
-        let vals = [];
-        let dates = [];
 
         //vals and dates are ALL values and dates in the dataset.
         function calculateVals(){
@@ -60,7 +62,6 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
             continuousColor = d3.scaleLinear([min,max],[0,1.0]); //continuous version
         }
 
-        let colorScale = d3.interpolateHsl(d3.hsl(120,1,0.5),d3.hsl(0,1.0,0.5)); //1 = green, 0 = red
 
         //Finds the closest value in 'array' to 'target'
         //https://www.geeksforgeeks.org/dsa/find-closest-number-array/
@@ -81,27 +82,16 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
                 "weight": 1
             }
         }
-
-        function onEachFeature(feature, layer){
+        //I could just generate a graph of every single city and cache it all but that's way more work than its worth
+        function onEachFeature(feature, layer){ //I suspect something is afoot here...
             if (feature.properties && feature.properties.val) {
-                layer.bindPopup('<div id="chart"></div>');
+                layer.bindPopup('<div id="chart"></div>').on('popupopen', function (e) {
+                    generateGraph(feature.properties["name"]);
+                });
             }
-            layer.on('click', function(e) {
-                generateGraph(feature.properties["name"]);
-            });
         }
 
-        let map = L.map('map').setView([41.38016733657364, -72.70705729845692], 9); //new leaflet map
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
-
-        let layerGroup = new L.LayerGroup();
-        layerGroup.addTo(map);
-
-        generateMap(findClosest(dates, 1615252500.0)); //Initial generation
-        //basic logic flow: if the date is the one given by slider, assign corresponding case value.
+        //Map generation code, given a date to use and whether to delete the last one
         function generateMap(chosenDate, clicked){
             calculateVals();
             console.log("Generating Map");
@@ -125,43 +115,53 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
             console.log("Generated new map");
         }
 
-        // Add an event listener to the button
+        let map = L.map('map').setView([41.38016733657364, -72.70705729845692], 9); //new leaflet map
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        let layerGroup = new L.LayerGroup();
+        layerGroup.addTo(map);
+
+        generateMap(findClosest(dates, 1615252500.0)); //Initial generation
+
+        // Add an event listener to the button to reset the map
         document.getElementById("resetButton").addEventListener("click", function (){
             console.log("clicked!");
             val_name = selector.value;
             generateMap(findClosest(dates, sliderVal), true);
         });
 
+        //function to generate the d3 graph
         function generateGraph(cityName){
-            if (document.getElementById('svgRemovable')){
-                d3.select("#svgRemovable").remove();
-            }
             let valPoints = [];
             let formattedDates = [];
 
+            //These two arrays are of the dates and values ONLY of the city chosen!
             for (let i = data.length - 1; i > 0; i--) {
-                if (data[i]["name"] == cityName) {
+                if (data[i]["name"] === cityName) {
                     formattedDates.push(new Date(data[i]["date"] * 1000));
                     valPoints.push(data[i][val_name]);
-
                 }
-            }
+            } //I know there's a lot of redundant looping over the data. I cant be bothered to lump it all together
+
             let minDate = formattedDates[0];
             let maxDate = formattedDates[formattedDates.length - 1];
             let minVal = d3.min(valPoints);
             let maxVal = d3.max(valPoints);
 
-            // Declare the x (horizontal position) scale.
+            // Declare the x and y scales.
             const x = d3.scaleUtc([minDate,maxDate], [marginLeft, width - marginRight]);
-            // Declare the y (vertical position) scale.
             const y = d3.scaleLinear([minVal, maxVal], [height - marginBottom, marginTop]);
 
+            //combines the formatted date and value data into one clean array
             const lineData = formattedDates.map((date, index) => ({
                 date: date,
                 value: valPoints[index],
             }));
 
-            console.log(lineData);
+            //console.log(lineData);
 
             // Declare the line generator.
             const line = d3.line()
@@ -198,6 +198,5 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
                     .attr("x2", width - marginLeft - marginRight)
                     .attr("stroke-opacity", 0.1));
         }
-        generateGraph(feature.properties["Hartford"]);
     });
 });
