@@ -142,7 +142,7 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
             let valPoints = [];
             let formattedDates = [];
 
-            //These two arrays are of the dates and values ONLY of the city chosen!
+            //These two arrays are of the dates and values ONLY of the city chosen
             for (let i = data.length - 1; i > 0; i--) {
                 if (data[i]["name"] === cityName) {
                     formattedDates.push(new Date(data[i]["date"] * 1000));
