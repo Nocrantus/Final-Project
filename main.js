@@ -20,8 +20,8 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
             date: d.date,
             name: d.city,
             case: +d.case, case_imp: +d.case_imp,
-            death: +d.death, death_imp: +d.death_imp,
-            rate: +d.rate};
+            death: +d.death, death_imp: +d.death_imp
+        };
     }).then((data,err2)=>{
         console.log(data);
 
@@ -31,6 +31,7 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
         let continuousColor = 0;
         let vals = [];
         let dates = [];
+        //let imps = []; used to test for imputated values, but there are none
         let colorScale = d3.interpolateHsl(d3.hsl(120,1,0.5),d3.hsl(0,1.0,0.5)); //1 = green, 0 = red
 
         //Slider Code
@@ -52,6 +53,7 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
         function calculateVals(){
             //Separates the values and dates from the main array
             vals.length = 0;
+            dates.length = 0;
             for (let j = 0; j < data.length; j++) {
                 vals.push(data[j][val_name]);
                 dates.push(data[j]["date"]);
@@ -59,9 +61,8 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
             max = d3.max(vals);
             min = d3.min(vals);
             mid = min + (max-min)/2;
-            continuousColor = d3.scaleLinear([min,max],[0,1.0]); //continuous version
+            continuousColor = d3.scaleLog([min+0.1,max],[0,1.0]); //continuous version
         }
-
 
         //Finds the closest value in 'array' to 'target'
         //https://www.geeksforgeeks.org/dsa/find-closest-number-array/
@@ -82,14 +83,35 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
                 "weight": 1
             }
         }
-        //I could just generate a graph of every single city and cache it all but that's way more work than its worth
+
         function onEachFeature(feature, layer){ //I suspect something is afoot here...
             if (feature.properties && feature.properties.val) {
-                layer.bindPopup('<div id="chart"></div>').on('popupopen', function (e) {
-                    generateGraph(feature.properties["name"]);
+                layer.bindPopup('<div id="chart"></div>').on('popupopen', () => {
+                    generateGraph(feature.properties["name"], "chart");
                 });
             }
         }
+
+        let map = L.map('map').setView([41.58016733657364, -72.70705729845692], 9); //new leaflet map
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        let layerGroup = new L.LayerGroup();
+        layerGroup.addTo(map);
+
+        calculateVals();
+        generateMap(findClosest(dates, 1615252500.0)); //Initial generation
+        generateLegend();
+
+        // Add an event listener to the button to reset the map
+        document.getElementById("resetButton").addEventListener("click", function (){
+            console.log("clicked!");
+            val_name = selector.value;
+            generateMap(findClosest(dates, sliderVal), true);
+            generateLegend();
+        });
 
         //Map generation code, given a date to use and whether to delete the last one
         function generateMap(chosenDate, clicked){
@@ -110,31 +132,13 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
                 layerGroup.clearLayers();
                 console.log("Removed old map");
             }
+            console.log(val_name);
             layerGroup.addLayer(geojsonLayer);
             layerGroup.addTo(map);
             console.log("Generated new map");
         }
-
-        let map = L.map('map').setView([41.38016733657364, -72.70705729845692], 9); //new leaflet map
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
-
-        let layerGroup = new L.LayerGroup();
-        layerGroup.addTo(map);
-
-        generateMap(findClosest(dates, 1615252500.0)); //Initial generation
-
-        // Add an event listener to the button to reset the map
-        document.getElementById("resetButton").addEventListener("click", function (){
-            console.log("clicked!");
-            val_name = selector.value;
-            generateMap(findClosest(dates, sliderVal), true);
-        });
-
         //function to generate the d3 graph
-        function generateGraph(cityName){
+        function generateGraph(cityName, svgMark){
             let valPoints = [];
             let formattedDates = [];
 
@@ -156,7 +160,7 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
             const y = d3.scaleLinear([minVal, maxVal], [height - marginBottom, marginTop]);
 
             //combines the formatted date and value data into one clean array
-            const lineData = formattedDates.map((date, index) => ({
+            let lineData = formattedDates.map((date, index) => ({
                 date: date,
                 value: valPoints[index],
             }));
@@ -164,14 +168,13 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
             //console.log(lineData);
 
             // Declare the line generator.
-            const line = d3.line()
+            let line = d3.line()
                 .x(d => x(d.date))
                 .y(d => y(d.value));
 
             // Create the SVG container.
-            let svg = d3.select("#chart")
+            let svg = d3.select("#" + svgMark)
                 .append("svg")
-                .attr("id", "svgRemovable")
                 .attr("width", width)
                 .attr("height", height)
                 .attr("viewBox", [0, 0, width, height])
@@ -197,6 +200,48 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
                 .call(g => g.selectAll(".tick line").clone()
                     .attr("x2", width - marginLeft - marginRight)
                     .attr("stroke-opacity", 0.1));
+        }
+
+        //https://d3-legend.susielu.com/#color-examples
+        function generateLegend(){
+            calculateVals();
+            console.log(min + " " + max);
+            let tempmin = 1;
+            if (min !== 0){
+                tempmin = min;
+            }
+            let log = d3.scaleLog()
+                .domain([tempmin, max])
+                .interpolate(() => d3.interpolateHsl(d3.hsl(120,1,0.5),d3.hsl(0,1.0,0.5)));
+
+            let svg = 0;
+
+            if (document.getElementById('legend') == null) {
+                svg = d3.select("#infobox")
+                    .append("svg")
+                    .attr("id", "legend");
+                svg.append("g")
+                    .attr("class", "legendLog")
+                    .attr("transform", "translate(20,0)");
+            } else {
+                svg = d3.select("#legend")
+            }
+
+            let cells = [];
+            switch (val_name) {
+                case "case":
+                    cells = [min, 100, 200, 500, 1000, 2000, 5000, 10000, max];
+                    break;
+                case "death":
+                    cells = [1, 10, 20, 30, 40, 50, 100, 200, max];
+            }
+            let logLegend = d3.legendColor()
+                .scale(log)
+                .shapeWidth(60)
+                .orient('horizontal')
+                .cells(cells)
+
+            svg.select(".legendLog").call(logLegend);
         }
     });
 });

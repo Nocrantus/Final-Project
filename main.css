@@ -14,7 +14,6 @@ html, body {
 }
 
 .slider {
-
     -webkit-appearance: none;
     width: 100%;
     height: 25px;
@@ -25,6 +24,11 @@ html, body {
     transition: opacity .2s;
 }
 
+.slider::-moz-range-thumb {
+    background: blue;
+    cursor: pointer;
+}
+
 .slider:hover {
     opacity: 1;
 }
@@ -32,6 +36,8 @@ html, body {
 #ui{
     text-align: center;
     margin-left: -20px;
+    position:relative;
+    bottom:10px;
 }
 
 #chart{
@@ -49,4 +55,19 @@ html, body {
     width: 600px !important; /* Sets a fixed width */
     max-width: 600px; /* Sets a maximum width */
     min-width: 150px; /* Sets a minimum width */
+}
+
+#legend{
+    height: 40px;
+    width: 600px;
+    display: block;
+    margin:auto;
+}
+
+#description{
+    position:absolute;
+    left:10px;
+    bottom:0;
+    width:30%;
+
 }

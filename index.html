@@ -7,23 +7,34 @@
     <link rel="stylesheet" type="text/css" href="dist/leaflet.css">
 </head>
 <body>
-    <div style="height: 600px; "id="map"></div>
+    <div style="height: 600px;" id="map"></div>
     <script src="d3.v7.min.js"></script>
     <script src="dist/leaflet.js"></script>
-    <div class="slidecontainer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.js" integrity="sha512-5mCB0Kvv97yTzqo0174qxPjMisck/WlK51+mw/RV7UfYbtHI8LuLR82BzZuxHUKSfbh75u9cZHgUcqrZDaBJuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>    <div class="slidecontainer">
         <input type="range" min="1655352000" max="1685592000" value="1655352000" class="slider" id="myRange">
         <div id="ui">
-            <select id="selectionBox">
+            <p id="output"></p>
+            <select id="selectionBox" style="position: relative; bottom:5px;">
                 <option value="case">Cases</option>
                 <option value="death">Deaths</option>
-                <option value="rate">Weekly Rate (data too broken to be functional)</option>
             </select> <br>
             <button id="resetButton">Update</button>
 
-            <p id="output"></p>
+
         </div>
     </div>
-    <!--<div id = "chart"></div>-->
+    <div id = "infobox">
+        <p id="description">
+            Data from:
+            <a href="https://data.ct.gov/Health-and-Human-Services/COVID-19-Town-Level-Data-Archive/icxw-cada/about_data" target="_blank">Covid-19 Data</a>
+            <br>
+            Project Started: 12/2/2025 <br>
+            Project Completed: 12/9/2025 <br>
+            Use the slider to select a date, and the dropdown box to either see cumulative covid cases or cumulative covid deaths.
+            Then, press update to see the number around the map. Click on a city, and you'll see a chart of cases or deaths over time
+            in that town.
+        </p>
+    </div>
     <script src="main.js"></script>
 </body>
 </html>
