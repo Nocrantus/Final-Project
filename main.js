@@ -2,7 +2,7 @@ let sliderVal = 1655352000; //initialize sliderVal
 let output = document.getElementById("output");
 let button = document.getElementById("myButton");
 let selector = document.getElementById('selectionBox');
-
+let citySelected = "Hartford";
 let marginLeft = 50;
 let marginRight = 20;
 let marginTop = 20;
@@ -87,8 +87,10 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
         function onEachFeature(feature, layer){ //I suspect something is afoot here...
             if (feature.properties && feature.properties.val) {
                 layer.on('click', e => {
-                    generateGraph(feature.properties.name);
-                    updateCityName(feature.properties.name);
+                    let cityName = feature.properties.name;
+                    generateGraph(cityName);
+                    updateCityName(cityName);
+                    citySelected = cityName;
                 });
             }
         }
@@ -118,6 +120,7 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
             val_name = selector.value;
             generateMap(findClosest(dates, sliderVal), true);
             generateLegend();
+            generateGraph(citySelected);
         });
 
         //Map generation code, given a date to use and whether to delete the last one
