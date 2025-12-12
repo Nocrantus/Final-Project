@@ -41,7 +41,7 @@ html, body {
 }
 
 #map {
-    width: 60vw;
+    width: 50vw;
     height: 60vh;
 }
 .leaflet-popup-content {
@@ -58,7 +58,7 @@ html, body {
 }
 
 #infobox{
-    width: 40%;
+    width: 50%;
     height:600px;
     position:absolute;
     top:0;
