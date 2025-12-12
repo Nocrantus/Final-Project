@@ -110,6 +110,7 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
         generateMap(findClosest(dates, 1615252500.0)); //Initial generation
         generateLegend();
         generateGraph("Hartford");
+        updateCityName("Hartford");
 
         // Add an event listener to the button to reset the map
         document.getElementById("resetButton").addEventListener("click", function (){
