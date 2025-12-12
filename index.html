@@ -23,7 +23,10 @@
 
         </div>
     </div>
-    <div id = "infobox">
+    <div id = "legendContainer"></div>
+    <div id="infobox">
+        <div id="chart"></div>
+        <p id="cityName"></p>
         <p id="description">
             Data from:
             <a href="https://data.ct.gov/Health-and-Human-Services/COVID-19-Town-Level-Data-Archive/icxw-cada/about_data" target="_blank">Covid-19 Data</a>
@@ -31,10 +34,13 @@
             Project Started: 12/2/2025 <br>
             Project Completed: 12/9/2025 <br>
             Use the slider to select a date, and the dropdown box to either see cumulative covid cases or cumulative covid deaths.
-            Then, press update to see the number around the map. Click on a city, and you'll see a chart of cases or deaths over time
+            Then, press update to see the number around the map. <br>Click on a city, and you'll see a chart of cases or deaths over time
             in that town.
+            <br><br>
+            Note: Although many values were imputated in the original dataset, none of the values I used to create this visualization were imputated
         </p>
     </div>
+
     <script src="main.js"></script>
 </body>
 </html>

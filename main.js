@@ -4,8 +4,8 @@ let button = document.getElementById("myButton");
 let selector = document.getElementById('selectionBox');
 
 let marginLeft = 50;
-let marginRight = 0;
-let marginTop = 0;
+let marginRight = 20;
+let marginTop = 20;
 let marginBottom = 20;
 const width = 1000;
 const height = 500;
@@ -86,10 +86,15 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
 
         function onEachFeature(feature, layer){ //I suspect something is afoot here...
             if (feature.properties && feature.properties.val) {
-                layer.bindPopup('<div id="chart"></div>').on('popupopen', () => {
-                    generateGraph(feature.properties["name"], "chart");
+                layer.on('click', e => {
+                    generateGraph(feature.properties.name);
+                    updateCityName(feature.properties.name);
                 });
             }
+        }
+        
+        function updateCityName(name){
+            document.getElementById("cityName").innerText = "City: " + name;
         }
 
         let map = L.map('map').setView([41.58016733657364, -72.70705729845692], 9); //new leaflet map
@@ -104,6 +109,7 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
         calculateVals();
         generateMap(findClosest(dates, 1615252500.0)); //Initial generation
         generateLegend();
+        generateGraph("Hartford");
 
         // Add an event listener to the button to reset the map
         document.getElementById("resetButton").addEventListener("click", function (){
@@ -138,11 +144,11 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
             console.log("Generated new map");
         }
         //function to generate the d3 graph
-        function generateGraph(cityName, svgMark){
+        function generateGraph(cityName){
             let valPoints = [];
             let formattedDates = [];
 
-            //These two arrays are of the dates and values ONLY of the city chosen
+            //These two arrays are of the dates and values ONLY of the city chosen!
             for (let i = data.length - 1; i > 0; i--) {
                 if (data[i]["name"] === cityName) {
                     formattedDates.push(new Date(data[i]["date"] * 1000));
@@ -172,9 +178,14 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
                 .x(d => x(d.date))
                 .y(d => y(d.value));
 
+            if (document.getElementById("svgRemovable") !== null) {
+                d3.select("#svgRemovable").remove();
+            }
+
             // Create the SVG container.
-            let svg = d3.select("#" + svgMark)
+            let svg = d3.select("#chart")
                 .append("svg")
+                .attr("id", "svgRemovable")
                 .attr("width", width)
                 .attr("height", height)
                 .attr("viewBox", [0, 0, width, height])
@@ -217,7 +228,7 @@ d3.json("ct-towns-2022-simple-datactgov.geojson").then((geojson,err1)=> {
             let svg = 0;
 
             if (document.getElementById('legend') == null) {
-                svg = d3.select("#infobox")
+                svg = d3.select("#legendContainer")
                     .append("svg")
                     .attr("id", "legend");
                 svg.append("g")

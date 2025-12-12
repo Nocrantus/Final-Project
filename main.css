@@ -40,16 +40,9 @@ html, body {
     bottom:10px;
 }
 
-#chart{
-    background-color: white;
-    z-index: 1;
-}
-
 #map {
-    height: 100vh; /* Example: set height to 100% of viewport height */
-    width: 100%;
-    /* Or a fixed height: */
-    /* height: 500px; */
+    width: 60vw;
+    height: 60vh;
 }
 .leaflet-popup-content {
     width: 600px !important; /* Sets a fixed width */
@@ -64,10 +57,29 @@ html, body {
     margin:auto;
 }
 
+#infobox{
+    width: 40%;
+    height:600px;
+    position:absolute;
+    top:0;
+    right:0;
+}
+
+#chart{
+    position:relative;
+    right:0;
+    top:0;
+    background-color: white;
+    z-index: 1;
+}
 #description{
     position:absolute;
-    left:10px;
     bottom:0;
-    width:30%;
+    margin:5px;
+}
 
+#cityName{
+    position:relative;
+    display:block;
+    margin:5px;
 }
